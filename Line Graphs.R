@@ -2,26 +2,26 @@ library(ggplot2)
 library(tidyverse)
 library(outliers)
 
-
-combined_data <- read.csv("Amino_Acid_HILIC_Data.csv")
-combined_data <- as_tibble(combined_data)
-combined_data[is.na(combined_data)] <- 0
-combined_data <- combined_data[, -c(8:10)]
-combined_data <- combined_data[-c(1:3), ]
-combined_data <- pivot_longer(combined_data, cols = -c(Compound, log2_hrs), names_to = "yeast", values_to = "rel_abundance")
-
+data <- read.csv("Pos_Data.csv")
+data[data == 0] <- NA
+data <- data |>
+  group_by(Compound, yeast, hrs) |>
+  filter(!any(is.na(across(rel_abundance)))) |>
+  ungroup()
 
 #average the triplicate data and convert to non log rel_abundance
-  if(max(combined_data[4], na.rm = TRUE) > 55) {
-  avg_data <- combined_data |> 
-    group_by(Compound, yeast, log2_hrs) |>
-    mutate(rel_abundance = (mean(as.numeric(rel_abundance), na.rm = TRUE))) |>
-    distinct()
+  if(class(data[[1]]) == "character") {
+  avg_data <- data |> 
+    group_by(Compound, yeast, hrs) |>
+    mutate(rel_abundance = (mean(as.numeric(rel_abundance)))) |>
+    distinct() |>
+    ungroup()
   } else {
-  avg_data <- combined_data |> 
-    group_by(Compound, yeast, log2_hrs) |>
-    mutate(rel_abundance = 2^(mean(as.numeric(rel_abundance), na.rm = TRUE))) |>
-    distinct()
+  avg_data <- data |> 
+    group_by(Compound, yeast, hrs) |>
+    mutate(rel_abundance = 2^(mean(as.numeric(rel_abundance)))) |>
+    distinct() |>
+    ungroup()
   }
 
 #create subset of the averaged data that just includes your compound of interest
@@ -89,5 +89,4 @@ ggplot(cmpd_avg_data, aes(x = log_hrs, y = rel_abundance, color = yeast, group =
   annotate("text", x = xpos, y = ypos+offset*2, label = "English", color = "#00BF7D", hjust = 0, size = 6) +
   annotate("text", x = xpos, y = ypos+offset, label = "Pilsner", color = "#00B0F6", hjust = 0, size = 6) +
   annotate("text", x = xpos, y = ypos, label = "Sake", color = "#E76BF3", hjust = 0, size = 6)
-  
   
