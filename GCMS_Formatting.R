@@ -40,6 +40,8 @@ combined_data <- combined_data |>
   rename(hrs = log2_hrs) |>
   mutate(hrs = 2^as.numeric(hrs))
 
+
+
 combined_data <- combined_data[, c("Compound", "hrs", "yeast", "rel_abundance")]
 write.csv(combined_data, file = "GCMS_Data.csv", append = FALSE, quote = FALSE, row.names = FALSE)
 
