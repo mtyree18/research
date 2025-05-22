@@ -6,9 +6,9 @@ library(dendsort)
 library(seriation)
 library(gridExtra)
 
-compound_string <- "1-pentanol"
+compound_string <- "tryptophan"
 
-data <- read.csv("Transformed for Line Graphs/GCMS_Data_Transformed.csv")
+data <- read.csv("Transformed for Line Graphs/AA_HILIC_Data_Transformed.csv")
 data[[4]][data[[4]] == 0] <- NA
 data <- data |>
   group_by(Compound, yeast, hrs) |>
@@ -69,8 +69,13 @@ cmpd_avg_data <- cmpd_avg_data |>
   as.matrix()
 #everything before this point was just transforming the data to work for the heatmap package
 
-#establishing the color function
-color_function <- colorRamp2(seq(min(cmpd_avg_data, na.rm = TRUE), max(cmpd_avg_data, na.rm = TRUE)-1, length.out = 10), hcl_palette = "Purples 3", reverse = TRUE)
+#establishing the color function (use the min and max values if normalization didn't work, use 0-2 if it did)
+if(ref_value == 1){
+  color_function <- colorRamp2(seq(min(cmpd_avg_data, na.rm = TRUE), max(cmpd_avg_data, na.rm = TRUE), length.out = 10), 
+                               hcl_palette = "Purples 3", reverse = TRUE)
+} else {
+color_function <- colorRamp2(c(0,1,2), hcl_palette = "Purples 3", reverse = TRUE)
+}
 #defining the dendogram object
 #this stores the distances between columns
 col_dist <- dist(t(cmpd_avg_data), method = "euclidean", na.rm = TRUE)
@@ -106,5 +111,19 @@ Heatmap(cmpd_avg_data,
         row_names_centered = TRUE,
         column_split = 2,
         column_gap = unit(3, "mm"),
-        column_dend_side = "top")
+        column_dend_side = "top",
+        show_heatmap_legend = FALSE)
+
+lgd <- Legend(col_fun = color_function,
+              title = "Relative Abundance",
+              border = "black",
+              direction = "horizontal",
+              legend_width = unit(5, "cm"),
+              grid_height = unit(0.5, "cm"),
+              labels_gp = gpar(fontsize = 10),
+              title_gp = gpar(fontsize = 15, fontface = 2))
+
+pushViewport(viewport(width = 1, height = 1))
+draw(lgd, x = unit(16.5, "cm"), y = unit(9, "cm"))
+popViewport()
 
