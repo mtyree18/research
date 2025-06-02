@@ -69,12 +69,15 @@ cmpd_avg_data <- cmpd_avg_data |>
   as.matrix()
 #everything before this point was just transforming the data to work for the heatmap package
 
+
 #establishing the color function (use the min and max values if normalization didn't work, use 0-2 if it did)
 if(ref_value == 1){
   color_function <- colorRamp2(seq(min(cmpd_avg_data, na.rm = TRUE), max(cmpd_avg_data, na.rm = TRUE), length.out = 10), 
                                hcl_palette = "Purples 3", reverse = TRUE)
+  at <- seq(min(cmpd_avg_data, na.rm = TRUE), max(cmpd_avg_data, na.rm = TRUE), length.out = 10)
 } else {
-color_function <- colorRamp2(c(0,1,2), hcl_palette = "Purples 3", reverse = TRUE)
+  color_function <- colorRamp2(c(0,1,2), hcl_palette = "Purples 3", reverse = TRUE)
+  at <- c(0,1,2)
 }
 #defining the dendogram object
 #this stores the distances between columns
@@ -89,7 +92,7 @@ ordering <- seriate(col_dist, method = "OLO")
 dendrogram <- as.dendrogram(ordering[[1]])
 
 
-Heatmap(cmpd_avg_data,
+ht <- Heatmap(cmpd_avg_data,
         name = "phenylalanine",
         col = color_function,
         na_col = "black",
@@ -97,14 +100,10 @@ Heatmap(cmpd_avg_data,
         column_title = "Phenylalanine",
         column_title_side = "top",
         column_title_gp = gpar(fontsize = 20, fontface = "bold"),
-        row_title = "time(hrs)",
-        row_title_side = "right",
-        row_title_gp = gpar(fontsize = 20, fontface = "bold"),
-        row_title_rot = 0,
         row_order = order(as.numeric(rownames(cmpd_avg_data))),
         cluster_columns = dendrogram,
         column_names_rot = 0,
-        column_names_side = "bottom",
+        column_names_side = "top",
         row_names_gp = gpar(fontsize = 15),
         column_names_gp = gpar(fontsize = 15),
         column_names_centered = TRUE,
@@ -112,18 +111,16 @@ Heatmap(cmpd_avg_data,
         column_split = 2,
         column_gap = unit(3, "mm"),
         column_dend_side = "top",
-        show_heatmap_legend = FALSE)
+        show_heatmap_legend = FALSE,
+        row_names_side = "left")
 
 lgd <- Legend(col_fun = color_function,
-              title = "Relative Abundance",
               border = "black",
-              direction = "horizontal",
-              legend_width = unit(5, "cm"),
-              grid_height = unit(0.5, "cm"),
               labels_gp = gpar(fontsize = 10),
-              title_gp = gpar(fontsize = 15, fontface = 2))
+              legend_width = unit(1, "npc"),
+              direction = "horizontal")
 
-pushViewport(viewport(width = 1, height = 1))
-draw(lgd, x = unit(16.5, "cm"), y = unit(9, "cm"))
-popViewport()
-
+draw(ht,
+     heatmap_legend_list = list(lgd),
+     annotation_legend_side = "bottom",
+     heatmap_legend_side = "bottom")
