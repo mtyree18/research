@@ -81,7 +81,7 @@ if(ref_value == 1){
 }
 #defining the dendogram object
 #this stores the distances between columns
-col_dist <- dist(t(cmpd_avg_data), method = "euclidean", na.rm = TRUE)
+col_dist <- dist(t(cmpd_avg_data), method = "euclidean")
 #this then uses those distances to generate a dendrogram 
 #which gets its branches flipped around to minimize the 
 #distances between adjacent columns. This variable stores 
