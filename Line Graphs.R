@@ -4,7 +4,7 @@ library(outliers)
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
 #changes anything that was 0 to NA and then removes compounds if all triplicates had abundances of NA
-data <- read.csv("Transformed for Line Graphs/AA_HILIC_Data_Transformed.csv")
+data <- read.csv("Transformed for Line Graphs/Pos_Data.csv")
 data[[4]][data[[4]] == 0] <- NA
 data <- data |>
   group_by(Compound, yeast, hrs) |>
@@ -28,9 +28,7 @@ if(class(data[[1]]) == "character") {
 
 #create subset of the averaged data that just includes your compound of interest
 cmpd_avg_data <- avg_data |> 
-  filter(
-    #    Compound == "2-methylbutyraldehyde")
-    str_detect(Compound, "^phenylalanine"))
+  filter(Compound == "159.0683")
 
 #takes the most recent abundance before beers were separated for yeast and divides everything by that value for normalization
 if(class(data[[1]]) == "character" & data[[2,1]] != "2-methyl-furan ") {
