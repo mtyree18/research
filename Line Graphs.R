@@ -3,7 +3,8 @@ library(tidyverse)
 library(outliers)
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
-data <- read.csv("GCMS_Data_Transformed.csv")
+#changes anything that was 0 to NA and then removes compounds if all triplicates had abundances of NA
+data <- read.csv("Transformed for Line Graphs/AA_HILIC_Data_Transformed.csv")
 data[[4]][data[[4]] == 0] <- NA
 data <- data |>
   group_by(Compound, yeast, hrs) |>
@@ -29,7 +30,9 @@ if(class(data[[1]]) == "character") {
 cmpd_avg_data <- avg_data |> 
   filter(
     #    Compound == "2-methylbutyraldehyde")
-    str_detect(Compound, "^2 & 3-methyl-1-butanol"))
+    str_detect(Compound, "^phenylalanine"))
+
+#takes the most recent abundance before beers were separated for yeast and divides everything by that value for normalization
 if(class(data[[1]]) == "character" & data[[2,1]] != "2-methyl-furan ") {
   ref_value <- cmpd_avg_data |>
     group_by(rel_abundance) |>
@@ -54,8 +57,8 @@ cmpd_avg_data <- cmpd_avg_data |>
 
 #define label positions for series
 xpos <- 6
-ypos <- 2
-offset <- 0.3
+ypos <- 2.5
+offset <- 0.2
 
 cmpd_avg_data$yeast <- factor(cmpd_avg_data$yeast)
 
@@ -63,8 +66,8 @@ cmpd_avg_data$yeast <- factor(cmpd_avg_data$yeast)
 my_plot <- ggplot(cmpd_avg_data, aes(x = log(as.numeric(hrs)), y = rel_abundance, color = yeast, group = yeast)) +
   geom_line(linewidth = 1, show.legend = FALSE) +
   geom_point(show.legend = FALSE) +
-  labs(title = "2 & 3-methyl-1-butanol") +
-  xlab("time") + 
+  labs(title = "Phenylalanine") +
+  xlab("Time (log hours)") + 
   ylab("Relative Abundance") +
   theme_classic(base_size = 24) +
   theme(

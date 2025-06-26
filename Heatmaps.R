@@ -6,9 +6,11 @@ library(dendsort)
 library(seriation)
 library(gridExtra)
 
-compound_string <- "tryptophan"
+#for compounds from the normal phase LCMS data (neg_data and pos_data files) you have to find the mass beforehand in the files because they don't always have the exact mass to the 4th decimal
+compound_string <- "161.0839"
+street_name <- "tryptophol"
 
-data <- read.csv("Transformed for Line Graphs/AA_HILIC_Data_Transformed.csv")
+data <- read.csv("Transformed for Line Graphs/Pos_Data.csv")
 data[[4]][data[[4]] == 0] <- NA
 data <- data |>
   group_by(Compound, yeast, hrs) |>
@@ -31,7 +33,7 @@ if(class(data[[1]]) == "character") {
 }
 
 cmpd_avg_data <- avg_data |> 
-  filter(str_detect(Compound, compound_string))
+  filter(Compound == compound_string)
 
 if(class(data[[1]]) == "character" & data[[2,1]] != "2-methyl-furan ") {
   ref_value <- cmpd_avg_data |>
@@ -55,7 +57,7 @@ cmpd_avg_data <- cmpd_avg_data |>
   mutate(rel_abundance = rel_abundance/ref_value)
 
 cmpd_avg_data <- cmpd_avg_data |>
-  filter(hrs > 26)
+  filter(hrs > 28)
 
 #transform into matrix for heatmap
 cmpd_avg_data <- cmpd_avg_data[, -1]
@@ -63,7 +65,9 @@ cmpd_avg_data <- cmpd_avg_data |>
   pivot_wider(
     names_from = yeast,
     values_from = rel_abundance
-  )
+  ) |>
+  mutate(hrs = trunc(as.numeric(hrs)))
+
 cmpd_avg_data <- cmpd_avg_data |>
   column_to_rownames("hrs") |>
   as.matrix()
@@ -93,13 +97,16 @@ dendrogram <- as.dendrogram(ordering[[1]])
 
 
 ht <- Heatmap(cmpd_avg_data,
-        name = "phenylalanine",
+        name = street_name,
         col = color_function,
         na_col = "black",
         rect_gp = gpar(col = "black", lwd = 2),
-        column_title = "Phenylalanine",
+        column_title = street_name,
         column_title_side = "top",
         column_title_gp = gpar(fontsize = 20, fontface = "bold"),
+        row_title = "brewing time (hrs)",
+        row_title_side = "left",
+        row_title_gp = gpar(fontsize = 20),
         row_order = order(as.numeric(rownames(cmpd_avg_data))),
         cluster_columns = dendrogram,
         column_names_rot = 0,
@@ -116,9 +123,13 @@ ht <- Heatmap(cmpd_avg_data,
 
 lgd <- Legend(col_fun = color_function,
               border = "black",
-              labels_gp = gpar(fontsize = 10),
+              labels_gp = gpar(fontsize = 12),
               legend_width = unit(1, "npc"),
-              direction = "horizontal")
+              direction = "horizontal",
+              title = "Relative Abundance",
+              title_gp = gpar(fontsize = 15))
+
+ht_opt$HEATMAP_LEGEND_PADDING = unit(4, "mm")
 
 draw(ht,
      heatmap_legend_list = list(lgd),
