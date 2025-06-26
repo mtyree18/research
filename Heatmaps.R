@@ -7,10 +7,10 @@ library(seriation)
 library(gridExtra)
 
 #for compounds from the normal phase LCMS data (neg_data and pos_data files) you have to find the mass beforehand in the files because they don't always have the exact mass to the 4th decimal
-compound_string <- "161.0839"
-street_name <- "tryptophol"
+compound_string <- "2 & 3-methyl-1-butanol"
+street_name <- "3-methylbutanol"
 
-data <- read.csv("Transformed for Line Graphs/Pos_Data.csv")
+data <- read.csv("Transformed for Line Graphs/GCMS_Data_Transformed.csv")
 data[[4]][data[[4]] == 0] <- NA
 data <- data |>
   group_by(Compound, yeast, hrs) |>
@@ -80,8 +80,8 @@ if(ref_value == 1){
                                hcl_palette = "Purples 3", reverse = TRUE)
   at <- seq(min(cmpd_avg_data, na.rm = TRUE), max(cmpd_avg_data, na.rm = TRUE), length.out = 10)
 } else {
-  color_function <- colorRamp2(c(0,1,2), hcl_palette = "Purples 3", reverse = TRUE)
-  at <- c(0,1,2)
+  color_function <- colorRamp2(c(0,100,200,300), hcl_palette = "Purples 3", reverse = TRUE)
+  at <- c(0,100,200,300)
 }
 #defining the dendogram object
 #this stores the distances between columns
