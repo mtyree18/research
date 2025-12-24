@@ -7,10 +7,10 @@ library(seriation)
 library(gridExtra)
 
 #for compounds from the normal phase LCMS data (neg_data and pos_data files) you have to find the mass beforehand in the files because they don't always have the exact mass to the 4th decimal
-compound_string <- "tyrosine"
-street_name <- "tyrosine"
+compound_string <- "130.063"
+street_name <- "Alpha-Keto-isoleucine"
 
-data <- read.csv("Transformed for Line Graphs/AA_HILIC_Data_Transformed.csv")
+data <- read.csv("Transformed for Line Graphs/Neg_Data.csv")
 data[[4]][data[[4]] == 0] <- NA
 data <- data |>
   group_by(Compound, yeast, hrs) |>
@@ -85,7 +85,7 @@ if(ref_value == 1){
 }
 #defining the dendogram object
 #this stores the distances between columns
-col_dist <- dist(t(cmpd_avg_data), method = "euclidean")
+col_dist <- dist(t(cmpd_avg_data), method = "manhattan")
 #this then uses those distances to generate a dendrogram 
 #which gets its branches flipped around to minimize the 
 #distances between adjacent columns. This variable stores 
